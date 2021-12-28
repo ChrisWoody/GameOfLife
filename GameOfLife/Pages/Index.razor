@@ -1,0 +1,171 @@
+﻿@page "/"
+@using System.Timers
+
+<PageTitle>Game of Life</PageTitle>
+
+<h1>Game of Life</h1>
+
+
+
+<fieldset class="border p-2" style="width: fit-content; float: left">
+    <fieldset class="border p-2" style="width: fit-content">
+        <legend class="w-auto">Info</legend>
+        <p>Learn more about the Game of Life <a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life" rel="noopener noreferrer" target="_blank">here</a>.</p>
+        <p>Click on the cells to seed the world then Start the game!</p>
+    </fieldset>
+
+    <legend class="w-auto">Settings</legend>
+    <p>
+        <label>Rows: <input @bind="_worldRows"/></label>
+    </p>
+    <p>
+        <label>Columns: <input @bind="_worldColumns"/></label>
+    </p>
+    <p>
+        <label>Speed (ms): <input @bind="_interval"/></label>
+    </p>
+
+    <p>
+        <button class="btn btn-primary" @onclick="ConfigureWorld">Prepare world/reset</button>
+    </p>
+    <fieldset class="border p-2" style="width: fit-content;">
+        <legend class="w-auto">Stats</legend>
+        <p>
+            <label>Generation: @_generation</label>
+        </p>
+        <p>
+            <label>Alive count: @GetAliveCount()</label>
+        </p>
+    </fieldset>
+    <p>
+        <button style="margin: 10px" disabled="@_running" class="btn btn-success" @onclick="Start">Start</button>
+    </p>
+</fieldset>
+
+
+<br />
+<table class="table" style="width: auto; margin: auto">
+    <tbody>
+    @for (var x = 0; x < _world.GetLength(0); x++)
+    {
+        <tr>
+            @for (var y = 0; y < _world.GetLength(1); y++)
+            {
+                var newX = x;
+                var newY = y;
+                var color = _world[newX, newY] ? "black" : "white";
+                <td @onclick="() => CellClicked(newX, newY)" style="background: @color"></td>
+            }
+        </tr>
+    }
+    </tbody>
+</table>
+
+@code
+{
+
+    private int _worldRows = 32;
+    private int _worldColumns = 32;
+    private bool[,] _world = new bool[0, 0];
+    private readonly Timer _timer = new(500);
+    private int _generation = 0;
+    private bool _running;
+    private double _interval = 500d;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ConfigureWorld();
+
+        _timer.Elapsed += Update;
+    }
+
+    private void Update(object? sender, ElapsedEventArgs e)
+    {
+        _ = InvokeAsync(() =>
+        {
+            _generation++;
+            Evolve();
+
+            StateHasChanged();
+        });
+    }
+
+    private void Evolve()
+    {
+        var oldWorld = (bool[,])_world.Clone();
+        for (var x = 0; x < oldWorld.GetLength(0); x++)
+        {
+            for (var y = 0; y < oldWorld.GetLength(1); y++)
+            {
+                var neighbors = GetAliveNeighbors(oldWorld, x, y);
+                var isAlive = IsCellAlive(oldWorld, x, y, neighbors);
+                _world[x, y] = isAlive;
+            }
+        }
+    }
+
+    private static int GetAliveNeighbors(bool[,] oldWorld, int x, int y)
+    {
+        var count = 0;
+        if (y > 0 && oldWorld[x, y - 1]) // left
+            count++;
+        if (y < oldWorld.GetLength(1) - 1 && oldWorld[x, y + 1]) // right
+            count++;
+        if (x > 0 && oldWorld[x - 1, y]) // up
+            count++;
+        if (x < oldWorld.GetLength(0) - 1 && oldWorld[x + 1, y]) // down
+            count++;
+        if (y > 0 && x > 0 && oldWorld[x - 1, y - 1]) // left up
+            count++;
+        if (y < oldWorld.GetLength(1) - 1 && x > 0 && oldWorld[x - 1, y + 1]) // right up
+            count++;
+        if (y > 0 && x < oldWorld.GetLength(0) - 1 && oldWorld[x + 1, y - 1]) // left down
+            count++;
+        if (y < oldWorld.GetLength(1) - 1 && x < oldWorld.GetLength(0) - 1 && oldWorld[x + 1, y + 1]) // right down
+            count++;
+
+        return count;
+    }
+
+    private static bool IsCellAlive(bool[,] oldWorld, int x, int y, int neighbors)
+    {
+        return neighbors == 3 || neighbors == 2 && oldWorld[x, y];
+    }
+
+    private async Task ConfigureWorld()
+    {
+        _timer.Stop();
+        _worldRows = Math.Clamp(_worldRows, 1, 128);
+        _worldColumns = Math.Clamp(_worldColumns, 1, 128);
+        _world = new bool[_worldRows, _worldColumns];
+        _generation = 0;
+        _running = false;
+    }
+
+    private async Task CellClicked(int x, int y)
+    {
+        if (_running)
+            return;
+
+        _world[x, y] = !_world[x, y];
+    }
+
+    private async Task Start()
+    {
+        _timer.Stop();
+        _generation = 0;
+        _running = true;
+        _timer.Interval = _interval;
+        _timer.Start();
+    }
+
+    private int GetAliveCount()
+    {
+        var count = 0;
+        for (var x = 0; x < _world.GetLength(0); x++)
+            for (var y = 0; y < _world.GetLength(1); y++)
+                if (_world[x, y])
+                    count++;
+        return count;
+    }
+}
