@@ -33,15 +33,15 @@
       "url": "_framework\/icudt.dat"
     },
     {
-      "hash": "sha256-nyb\/DKT2ZN8tiSDfcD01LgU\/bDy3OcvXw3pnR\/FT7F8=",
+      "hash": "sha256-PReKpFlLhJKkR1oR6FCNtZ9GRhddTfXQ1JPabVD4SQk=",
       "url": "_framework\/blazor.boot.json"
     },
     {
-      "hash": "sha256-xvL7+VR4kjjWk1LFO0ag6iVdWKwi3jx9\/v4zFgNOiKg=",
+      "hash": "sha256-cBF7Q1gLniO60NBfXtYUYAGdSdMfkLwnxM5S6je7KJo=",
       "url": "_framework\/GameOfLife.dll"
     },
     {
-      "hash": "sha256-gb+TM70h7+LDqa1UDbR6SgYwcqR44f2m0wTzsoUjfWU=",
+      "hash": "sha256-riakno3qwYTchVGO0ulh97sw\/sY98pQuLQVKsDkb6as=",
       "url": "_framework\/Microsoft.AspNetCore.Components.dll"
     },
     {
@@ -237,5 +237,5 @@
       "url": "manifest.json"
     }
   ],
-  "version": "Nb\/WBtQl"
+  "version": "6ssjVYwX"
 };
