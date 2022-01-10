@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using System.Timers
+@using System.Drawing
 
 <PageTitle>Game of Life</PageTitle>
 
@@ -27,7 +28,7 @@
     </p>
 
     <p>
-        <button class="btn btn-primary" @onclick="ConfigureWorld" disabled="@_running">Prepare world/reset</button>
+        <button class="btn btn-primary" @onclick="ConfigureWorld" disabled="@_running">Resize/Reset world</button>
     </p>
     <fieldset class="border p-2" style="width: fit-content;">
         <legend class="w-auto">Stats</legend>
@@ -40,7 +41,7 @@
     </fieldset>
     <p>
         <button style="margin: 10px" disabled="@(!_running)" class="btn btn-danger" @onclick="Stop">Stop</button>
-        <button style="margin: 10px" disabled="@_running" class="btn btn-success" @onclick="Start">Start</button>
+        <button style="margin: 10px" disabled="@_running" class="btn btn-success" @onclick="Start">Start/Continue</button>
     </p>
 </fieldset>
 
@@ -171,8 +172,6 @@
 
     private async Task Start()
     {
-        _timer.Stop();
-        _generation = 0;
         _running = true;
         _timer.Interval = _interval;
         _timer.Start();
@@ -180,7 +179,8 @@
 
     private async Task Stop()
     {
-        await ConfigureWorld();
+        _timer.Stop();
+        _running = false;
     }
 
     private int GetAliveCount()
