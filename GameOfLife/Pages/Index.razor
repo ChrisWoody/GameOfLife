@@ -14,17 +14,20 @@
 
     <legend class="w-auto">Settings</legend>
     <p>
-        <label>Rows: <input @bind="_worldRows"/></label>
+        <label>Rows: <input @bind="_worldRows" disabled="@_running"/></label>
     </p>
     <p>
-        <label>Columns: <input @bind="_worldColumns"/></label>
+        <label>Columns: <input @bind="_worldColumns" disabled="@_running"/></label>
     </p>
     <p>
-        <label>Speed (ms): <input @bind="_interval"/></label>
+        <label>Speed (ms): <input @bind="_interval" disabled="@_running"/></label>
+    </p>
+    <p>
+        <label>Zombies? <input type="checkbox" @bind="_isZombies" disabled="@_running"/></label>
     </p>
 
     <p>
-        <button class="btn btn-primary" @onclick="ConfigureWorld">Prepare world/reset</button>
+        <button class="btn btn-primary" @onclick="ConfigureWorld" disabled="@_running">Prepare world/reset</button>
     </p>
     <fieldset class="border p-2" style="width: fit-content;">
         <legend class="w-auto">Stats</legend>
@@ -36,6 +39,7 @@
         </p>
     </fieldset>
     <p>
+        <button style="margin: 10px" disabled="@(!_running)" class="btn btn-danger" @onclick="Stop">Stop</button>
         <button style="margin: 10px" disabled="@_running" class="btn btn-success" @onclick="Start">Start</button>
     </p>
 </fieldset>
@@ -50,7 +54,11 @@
             {
                 var newX = x;
                 var newY = y;
-                var color = _world[newX, newY] ? "black" : "white";
+                var color = _world[newX, newY].IsAlive ? "black" : "white";
+                if (_isZombies && _world[newX, newY].IsZombie)
+                {
+                    color = "darkgreen";
+                }
                 <td @onclick="() => CellClicked(newX, newY)" style="background: @color"></td>
             }
         </tr>
@@ -63,11 +71,12 @@
 
     private int _worldRows = 32;
     private int _worldColumns = 32;
-    private bool[,] _world = new bool[0, 0];
+    private Cell[,] _world = new Cell[0, 0];
     private readonly Timer _timer = new(500);
     private int _generation = 0;
     private bool _running;
     private double _interval = 500d;
+    private bool _isZombies;
 
     protected override async Task OnInitializedAsync()
     {
@@ -82,51 +91,61 @@
         {
             _generation++;
             Evolve();
-
             StateHasChanged();
         });
     }
 
     private void Evolve()
     {
-        var oldWorld = (bool[,])_world.Clone();
+        var oldWorld = new Cell[_world.GetLength(0), _world.GetLength(1)];
+        for (var x = 0; x < oldWorld.GetLength(0); x++)
+        {
+            for (var y = 0; y < oldWorld.GetLength(1); y++)
+            {
+                oldWorld[x, y] = _world[x, y].Clone();
+            }
+        }
+
         for (var x = 0; x < oldWorld.GetLength(0); x++)
         {
             for (var y = 0; y < oldWorld.GetLength(1); y++)
             {
                 var neighbors = GetAliveNeighbors(oldWorld, x, y);
                 var isAlive = IsCellAlive(oldWorld, x, y, neighbors);
-                _world[x, y] = isAlive;
+                _world[x, y].IsAlive = isAlive;
             }
         }
     }
 
-    private static int GetAliveNeighbors(bool[,] oldWorld, int x, int y)
+    private static int GetAliveNeighbors(Cell[,] oldWorld, int x, int y)
     {
         var count = 0;
-        if (y > 0 && oldWorld[x, y - 1]) // left
+        if (y > 0 && oldWorld[x, y - 1].IsAlive) // left
             count++;
-        if (y < oldWorld.GetLength(1) - 1 && oldWorld[x, y + 1]) // right
+        if (y < oldWorld.GetLength(1) - 1 && oldWorld[x, y + 1].IsAlive) // right
             count++;
-        if (x > 0 && oldWorld[x - 1, y]) // up
+        if (x > 0 && oldWorld[x - 1, y].IsAlive) // up
             count++;
-        if (x < oldWorld.GetLength(0) - 1 && oldWorld[x + 1, y]) // down
+        if (x < oldWorld.GetLength(0) - 1 && oldWorld[x + 1, y].IsAlive) // down
             count++;
-        if (y > 0 && x > 0 && oldWorld[x - 1, y - 1]) // left up
+        if (y > 0 && x > 0 && oldWorld[x - 1, y - 1].IsAlive) // left up
             count++;
-        if (y < oldWorld.GetLength(1) - 1 && x > 0 && oldWorld[x - 1, y + 1]) // right up
+        if (y < oldWorld.GetLength(1) - 1 && x > 0 && oldWorld[x - 1, y + 1].IsAlive) // right up
             count++;
-        if (y > 0 && x < oldWorld.GetLength(0) - 1 && oldWorld[x + 1, y - 1]) // left down
+        if (y > 0 && x < oldWorld.GetLength(0) - 1 && oldWorld[x + 1, y - 1].IsAlive) // left down
             count++;
-        if (y < oldWorld.GetLength(1) - 1 && x < oldWorld.GetLength(0) - 1 && oldWorld[x + 1, y + 1]) // right down
+        if (y < oldWorld.GetLength(1) - 1 && x < oldWorld.GetLength(0) - 1 && oldWorld[x + 1, y + 1].IsAlive) // right down
             count++;
 
         return count;
     }
 
-    private static bool IsCellAlive(bool[,] oldWorld, int x, int y, int neighbors)
+    private bool IsCellAlive(Cell[,] oldWorld, int x, int y, int neighbors)
     {
-        return neighbors == 3 || neighbors == 2 && oldWorld[x, y];
+        if (_isZombies && oldWorld[x, y].IsZombie)
+            return true;
+
+        return neighbors == 3 || (neighbors == 2 && oldWorld[x, y].IsAlive);
     }
 
     private async Task ConfigureWorld()
@@ -134,7 +153,10 @@
         _timer.Stop();
         _worldRows = Math.Clamp(_worldRows, 1, 128);
         _worldColumns = Math.Clamp(_worldColumns, 1, 128);
-        _world = new bool[_worldRows, _worldColumns];
+        _world = new Cell[_worldRows, _worldColumns];
+        for (var x = 0; x < _world.GetLength(0); x++)
+            for (var y = 0; y < _world.GetLength(1); y++)
+                _world[x, y] = new Cell();
         _generation = 0;
         _running = false;
     }
@@ -144,7 +166,7 @@
         if (_running)
             return;
 
-        _world[x, y] = !_world[x, y];
+        _world[x, y].SeedIsAlive = !_world[x, y].IsAlive;
     }
 
     private async Task Start()
@@ -156,13 +178,52 @@
         _timer.Start();
     }
 
+    private async Task Stop()
+    {
+        await ConfigureWorld();
+    }
+
     private int GetAliveCount()
     {
         var count = 0;
         for (var x = 0; x < _world.GetLength(0); x++)
             for (var y = 0; y < _world.GetLength(1); y++)
-                if (_world[x, y])
+                if (_world[x, y].IsAlive)
                     count++;
         return count;
+    }
+
+    private class Cell
+    {
+        private bool _isAlive;
+        private int _aliveCount;
+
+        public bool IsAlive
+        {
+            get => _isAlive;
+            set
+            {
+                _isAlive = value;
+
+                if (_isAlive)
+                    _aliveCount++;
+            }
+        }
+
+        public bool SeedIsAlive
+        {
+            set { _isAlive = value; }
+        }
+
+        public bool IsZombie => _aliveCount > 1;
+
+        public Cell Clone()
+        {
+            return new Cell
+            {
+                _isAlive = _isAlive,
+                _aliveCount = _aliveCount
+            };
+        }
     }
 }
