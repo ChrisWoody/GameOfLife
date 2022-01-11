@@ -29,6 +29,7 @@
 
     <p>
         <button class="btn btn-primary" @onclick="ConfigureWorld" disabled="@_running">Resize/Reset world</button>
+        <button class="btn btn-primary" @onclick="RandomiseSeed" disabled="@_running">Resize/Reset with random seed</button>
     </p>
     <fieldset class="border p-2" style="width: fit-content;">
         <legend class="w-auto">Stats</legend>
@@ -78,6 +79,7 @@
     private bool _running;
     private double _interval = 500d;
     private bool _isZombies;
+    private readonly Random _random = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -158,6 +160,18 @@
         for (var x = 0; x < _world.GetLength(0); x++)
             for (var y = 0; y < _world.GetLength(1); y++)
                 _world[x, y] = new Cell();
+        _generation = 0;
+        _running = false;
+    }
+
+    private async Task RandomiseSeed()
+    {
+        _worldRows = Math.Clamp(_worldRows, 1, 128);
+        _worldColumns = Math.Clamp(_worldColumns, 1, 128);
+        _world = new Cell[_worldRows, _worldColumns];
+        for (var x = 0; x < _world.GetLength(0); x++)
+            for (var y = 0; y < _world.GetLength(1); y++)
+                _world[x, y] = new Cell{IsAlive = _random.NextDouble() < 0.1f};
         _generation = 0;
         _running = false;
     }
