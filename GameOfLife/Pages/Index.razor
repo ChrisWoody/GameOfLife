@@ -207,6 +207,8 @@
 
                 if (_isAlive)
                     _aliveCount++;
+                else if (_aliveCount > 0)
+                    _aliveCount++;
             }
         }
 
@@ -215,7 +217,7 @@
             set { _isAlive = value; }
         }
 
-        public bool IsZombie => _aliveCount > 1;
+        public bool IsZombie => _aliveCount > 2;
 
         public Cell Clone()
         {
