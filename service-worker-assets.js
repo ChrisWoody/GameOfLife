@@ -33,11 +33,11 @@
       "url": "_framework\/icudt.dat"
     },
     {
-      "hash": "sha256-dI0KEIGBXYMmlKGG+L5gscgH8xpRN7KlB07PfqI\/nIM=",
+      "hash": "sha256-aIPoU9vF\/EtSmhvP\/yTWsDi3V34xs7tCfXr10TCXlbY=",
       "url": "_framework\/blazor.boot.json"
     },
     {
-      "hash": "sha256-fWiBcGilJT+B40fpI3fnqsdbeZDgh+qE3JBA3OPiA5Q=",
+      "hash": "sha256-0MoGH5H4U0CWJ6MwXVQmBNm10Wf3bUl6H438Y3g3WDk=",
       "url": "_framework\/GameOfLife.dll"
     },
     {
@@ -137,7 +137,7 @@
       "url": "_framework\/System.ObjectModel.dll"
     },
     {
-      "hash": "sha256-o38nOZsJXJGNrwZKU0eDl+JwNAPhZThrqaeBOk9Rmao=",
+      "hash": "sha256-DKDZ8E3x\/NwHWDOQfoIUyKurshmWxijp2bvxrjZtjQU=",
       "url": "_framework\/System.Private.CoreLib.dll"
     },
     {
@@ -153,7 +153,7 @@
       "url": "_framework\/System.Runtime.CompilerServices.Unsafe.dll"
     },
     {
-      "hash": "sha256-18diMm1VBtBjKdt14QPt\/8DMaO9njXXA8n3MYao0xWs=",
+      "hash": "sha256-gJRcw+Zxs301Wufvxdaz5UHYJoUvLEQUlxIDpumvJj4=",
       "url": "_framework\/System.Runtime.dll"
     },
     {
@@ -237,5 +237,5 @@
       "url": "manifest.json"
     }
   ],
-  "version": "ohIzUahJ"
+  "version": "OTDvoVV\/"
 };
