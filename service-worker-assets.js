@@ -33,11 +33,11 @@
       "url": "_framework\/icudt.dat"
     },
     {
-      "hash": "sha256-KUAxjAofDRHtwP095x7yEuqSpgCdE67C92Or+1Krg8o=",
+      "hash": "sha256-dI0KEIGBXYMmlKGG+L5gscgH8xpRN7KlB07PfqI\/nIM=",
       "url": "_framework\/blazor.boot.json"
     },
     {
-      "hash": "sha256-FASWoM7sX8D6pd5bo\/IVsUxPP8LhMQxTRMTPf\/xSqxI=",
+      "hash": "sha256-fWiBcGilJT+B40fpI3fnqsdbeZDgh+qE3JBA3OPiA5Q=",
       "url": "_framework\/GameOfLife.dll"
     },
     {
@@ -237,5 +237,5 @@
       "url": "manifest.json"
     }
   ],
-  "version": "Y\/XT76MH"
+  "version": "ohIzUahJ"
 };
